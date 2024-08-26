@@ -1,6 +1,6 @@
-package com.example.examplemod.mixin;
+package tfar.onscreenkeyboard.mixin;
 
-import com.example.examplemod.CommonClass;
+import tfar.onscreenkeyboard.OnScreenKeyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ public class MixinTitleScreen {
     @Inject(at = @At("HEAD"), method = "init()V")
     private void init(CallbackInfo info) {
 
-        CommonClass.LOG.info("This line is printed by an example mod mixin from Forge!");
-        CommonClass.LOG.info("MC Version: {}", Minecraft.getInstance().getVersionType());
+        OnScreenKeyboard.LOG.info("This line is printed by an example mod mixin from Forge!");
+        OnScreenKeyboard.LOG.info("MC Version: {}", Minecraft.getInstance().getVersionType());
     }
 }
