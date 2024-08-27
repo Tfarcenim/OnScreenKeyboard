@@ -13,45 +13,47 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SignKeyboardScreen extends Screen {
+public abstract class BasicKeyboardScreen<T extends Screen> extends Screen {
 
-    private final EditBox original;
-    private EditBox name;
+    protected final T parent;
+    protected EditBox name;
 
     List<ShiftableButton> shiftableButtons = new ArrayList<>();
 
-    protected SignKeyboardScreen(Component $$0, EditBox original) {
+    protected BasicKeyboardScreen(Component $$0, T parent) {
         super($$0);
-        this.original = original;
+        this.parent = parent;
     }
 
     @Override
     protected void init() {
         super.init();
-        initEditBox();
+        int xPoint = -150;
+        int yPoint = 0;
+        initEditBox(xPoint,yPoint);
         shiftableButtons.clear();
 
-        int xPoint = -150;
+
 
         char[][] row1Chars = new char[][]{
                 new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0','-','='},
                 new char[]{'!', '@', '#', '$', '%', '^', '&', '*', '(', ')','_','+'},
         };
-        makeShiftableRow(xPoint,-44,row1Chars);
+        makeShiftableRow(xPoint,yPoint,row1Chars);
 
 
         char[][] row2Chars = new char[][]{
                 new char[]{'q','w','e','r','t','y','u','i','o','p','[',']','\\','`'},
                 new char[]{'Q','W','E','R','T','Y','U','I','O','P','{','}','|','~'}
         };
-        makeShiftableRow(xPoint,-22,row2Chars);
+        makeShiftableRow(xPoint,yPoint+22,row2Chars);
 
 
         char[][] row3Chars = new char[][]{
                 new char[]{'a','s','d','f','g','h','j','k','l',';','\'','/'},
                 new char[]{'A','S','D','F','G','H','J','K','L',':','\"','?'}
         };
-        makeShiftableRow(xPoint,0,row3Chars);
+        makeShiftableRow(xPoint,yPoint+44,row3Chars);
 
 
         char[][] row4Chars = new char[][]{
@@ -59,22 +61,22 @@ public class SignKeyboardScreen extends Screen {
                 new char[]{'Z','X','C','V','B','N','M','<','>',}
 
         };
-        makeShiftableRow(xPoint + 44,22,row4Chars);
+        makeShiftableRow(xPoint + 44,yPoint+66,row4Chars);
 
 
-        addRenderableWidget(new Button(width / 2 + xPoint + 264, height / 2 - 44 , 42, 20, new TextComponent("Back"), button -> {
+        addRenderableWidget(new Button(width / 2 + xPoint + 264, height / 2 +yPoint , 42, 20, new TextComponent("Back"), button -> {
             name.deleteChars(-1);
         }));
 
-        addRenderableWidget(new Button(width / 2 + xPoint + 242 , height / 2 +22, 64, 20, new TextComponent("Space"), button -> {
+        addRenderableWidget(new Button(width / 2 + xPoint + 242 , height / 2 +yPoint+66, 64, 20, new TextComponent("Space"), button -> {
             name.charTyped(' ',0);
         }));
 
-        addRenderableWidget(new Button(width / 2 + xPoint + 264 , height / 2, 42, 20, new TextComponent("Enter"), button -> {
+        addRenderableWidget(new Button(width / 2 + xPoint + 264 , height / 2 +yPoint +44, 42, 20, new TextComponent("Enter"), button -> {
             this.minecraft.popGuiLayer();
         }));
 
-        addRenderableWidget(new Button(width / 2 + xPoint  , height / 2 +22, 42, 20, new TextComponent("Shift"), button -> {
+        addRenderableWidget(new Button(width / 2 + xPoint  , height / 2 + yPoint+66, 42, 20, new TextComponent("Shift"), button -> {
             for (ShiftableButton shiftableButton : shiftableButtons) {
                 shiftableButton.shift();
             }
@@ -98,19 +100,21 @@ public class SignKeyboardScreen extends Screen {
             }
         }
 
-    protected void initEditBox() {
-        int x = width / 2;
-        int y = height/2;
-        this.name = new EditBox(this.font, x - 50, y - 65, 120, 12, new TranslatableComponent("container.repair"));
+    protected void initEditBox(int xPoint, int yPoint) {
+        int x = width / 2 + xPoint;
+        int y = height/2 + yPoint;
+        this.name = new EditBox(this.font, x +100, y - 18, 120, 12, new TranslatableComponent("container.repair"));
         this.name.setCanLoseFocus(false);
         this.name.setTextColor(-1);
         this.name.setTextColorUneditable(-1);
 
         this.name.setMaxLength(50);
-        name.setValue(original.getValue());
         name.setResponder(this::onChange);
+        extraDetails();
         setInitialFocus(name);
     }
+
+    protected abstract void extraDetails();
 
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pPoseStack);
@@ -126,20 +130,16 @@ public class SignKeyboardScreen extends Screen {
 
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (pKeyCode == GLFW.GLFW_KEY_ESCAPE) {
-            original.setEditable(true);
-            this.minecraft.popGuiLayer();
+            onEscape();
         }
 
         return this.name.keyPressed(pKeyCode, pScanCode, pModifiers) || this.name.canConsumeInput() || super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
-    void onChange(String s) {
-        original.setValue(s);
+    protected void onEscape() {
+        minecraft.popGuiLayer();
     }
 
-    @Override
-    public void onClose() {
-        super.onClose();
-        original.setEditable(true);
-    }
+    protected abstract void onChange(String s);
+
 }

@@ -5,7 +5,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.SignEditScreen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.client.event.ScreenEvent;
@@ -28,7 +27,7 @@ public class ModClientForge {
 
     static void screenInit(ScreenEvent.InitScreenEvent.Post event) {
         Screen screen = event.getScreen();
-        if (hasKeyboard(screen)) {
+        if (hasKeyboard(screen)  && Minecraft.getInstance().screen == screen) {
             Consumer<Button> addButton = event::addListener;
             ModClient.addKeyboardButtons(screen, addButton);
             selected = (EditBox) event.getListenersList().stream().filter(guiEventListener -> guiEventListener instanceof EditBox).findFirst().orElse(null);
@@ -37,9 +36,9 @@ public class ModClientForge {
 
     static void widgetClick(ScreenEvent.MouseClickedEvent.Post event) {
         Screen screen = event.getScreen();
-        if (hasKeyboard(screen)) {
+        if (hasKeyboard(screen) && Minecraft.getInstance().screen == screen) {
             if (selected != null && selected.isMouseOver(event.getMouseX(),event.getMouseY()) && selected.isEditable) {
-                Minecraft.getInstance().pushGuiLayer(new KeyboardScreen(new TextComponent(""),selected));
+                Minecraft.getInstance().pushGuiLayer(new EditBoxKeyboardScreen<>(new TextComponent(""),screen));
             }
         } else if (screen instanceof SignEditScreen signEditScreen) {
             TextFieldHelper textFieldHelper = ((SignEditScreenMixin)signEditScreen).getSignField();
