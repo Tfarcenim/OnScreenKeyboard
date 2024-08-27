@@ -1,5 +1,7 @@
 package tfar.onscreenkeyboard.platform.services;
 
+import tfar.onscreenkeyboard.platform.MLConfig;
+
 public interface IPlatformHelper {
 
     /**
@@ -33,4 +35,6 @@ public interface IPlatformHelper {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    MLConfig getConfig();
 }
