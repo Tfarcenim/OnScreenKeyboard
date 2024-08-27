@@ -28,8 +28,8 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
     @Override
     protected void init() {
         super.init();
-        int xPoint = -150;
-        int yPoint = 0;
+        int xPoint = -152;
+        int yPoint = 32;
         initEditBox(xPoint,yPoint);
         shiftableButtons.clear();
 
@@ -44,7 +44,7 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
 
         char[][] row2Chars = new char[][]{
                 new char[]{'q','w','e','r','t','y','u','i','o','p','[',']','\\','`'},
-                new char[]{'Q','W','E','R','S','Y','U','I','O','P','{','}','|','~'}
+                new char[]{'Q','W','E','R','T','Y','U','I','O','P','{','}','|','~'}
         };
         makeShiftableRow(xPoint,yPoint+22,row2Chars);
 
@@ -65,15 +65,18 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
 
 
         addRenderableWidget(new Button(width / 2 + xPoint + 264, height / 2 +yPoint , 42, 20, new TextComponent("Back"), button -> {
-            name.deleteChars(-1);
+            keyPressed(GLFW.GLFW_KEY_BACKSPACE,0,0);
         }));
 
         addRenderableWidget(new Button(width / 2 + xPoint + 242 , height / 2 +yPoint+66, 64, 20, new TextComponent("Space"), button -> {
             name.charTyped(' ',0);
+            parent.charTyped(' ',0);
+          //  parent.keyPressed(GLFW.GLFW_KEY_SPACE,0,0);
         }));
 
         addRenderableWidget(new Button(width / 2 + xPoint + 264 , height / 2 +yPoint +44, 42, 20, new TextComponent("Enter"), button -> {
-            this.minecraft.popGuiLayer();
+            parent.keyPressed(GLFW.GLFW_KEY_ENTER,0,0);
+            //minecraft.popGuiLayer();
         }));
 
         addRenderableWidget(new Button(width / 2 + xPoint  , height / 2 + yPoint+66, 42, 20, new TextComponent("Shift"), button -> {
@@ -90,9 +93,11 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
                 char char1 = chars[1][i];
                 ShiftableButton shiftableButton = new ShiftableButton(width / 2 +xStart + i * 22, height / 2 +yStart, 20, 20, new TextComponent(String.valueOf(char0)), button -> {
                     if (((ShiftableButton)button).shift) {
+                        parent.charTyped(char1,0);
                         name.charTyped(char1, 0);
                     } else {
-                        name.charTyped(char0, 0);
+                        parent.charTyped(char0,0);
+                        name.charTyped(char0,0);
                     }
                 },new TextComponent(String.valueOf(char1)));
                 shiftableButtons.add(shiftableButton);
@@ -115,7 +120,7 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
     protected abstract void extraDetails();
 
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pPoseStack);
+    //    this.renderBackground(pPoseStack);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         RenderSystem.disableBlend();
         this.renderFg(pPoseStack, pMouseX, pMouseY, pPartialTick);
@@ -123,15 +128,17 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
     }
 
     public void renderFg(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.name.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+       // this.name.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (pKeyCode == GLFW.GLFW_KEY_ESCAPE) {
             onEscape();
+            return true;
+        } else {
+            parent.keyPressed(pKeyCode,pScanCode,pModifiers);
+            return this.name.keyPressed(pKeyCode, pScanCode, pModifiers) || this.name.canConsumeInput() || super.keyPressed(pKeyCode, pScanCode, pModifiers);
         }
-
-        return this.name.keyPressed(pKeyCode, pScanCode, pModifiers) || this.name.canConsumeInput() || super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
     protected void onEscape() {

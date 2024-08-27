@@ -1,6 +1,11 @@
 package tfar.onscreenkeyboard.platform.services;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import tfar.onscreenkeyboard.network.C2SModPacket;
 import tfar.onscreenkeyboard.platform.MLConfig;
+
+import java.util.function.Function;
 
 public interface IPlatformHelper {
 
@@ -37,4 +42,12 @@ public interface IPlatformHelper {
     }
 
     MLConfig getConfig();
+
+
+    <MSG extends C2SModPacket> void registerServerPacket(Class<MSG> packetLocation, Function<FriendlyByteBuf,MSG> reader);
+
+
+
+    void sendToServer(C2SModPacket msg);
+
 }

@@ -10,4 +10,5 @@ public interface SignEditScreenMixin {
     @Accessor
     TextFieldHelper getSignField();
     @Accessor int getLine();
+    @Accessor String[] getMessages();
 }

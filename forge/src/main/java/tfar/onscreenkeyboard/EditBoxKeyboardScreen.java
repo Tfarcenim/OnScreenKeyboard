@@ -33,7 +33,7 @@ public class EditBoxKeyboardScreen<T extends Screen> extends BasicKeyboardScreen
     }
 
     protected void onChange(String s) {
-        original.setValue(s);
+//        original.setValue(s);
     }
 
     @Override

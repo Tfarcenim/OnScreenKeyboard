@@ -1,7 +1,9 @@
 package tfar.onscreenkeyboard;
 
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tfar.onscreenkeyboard.network.PacketHandler;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -24,6 +26,11 @@ public class OnScreenKeyboard {
         // your own abstraction layer. You can learn more about this in our provided services class. In this example
         // we have an interface in the common code and use a loader specific implementation to delegate our call to
         // the platform specific approach.
+        PacketHandler.registerPackets();
 
+    }
+
+    public static ResourceLocation id(String lowerCase) {
+        return new ResourceLocation(MOD_ID,lowerCase);
     }
 }
