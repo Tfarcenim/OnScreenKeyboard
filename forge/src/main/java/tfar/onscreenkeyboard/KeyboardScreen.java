@@ -10,10 +10,15 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class KeyboardScreen extends Screen {
 
     private final EditBox original;
     private EditBox name;
+
+    List<ShiftableButton> shiftableButtons = new ArrayList<>();
 
     protected KeyboardScreen(Component $$0,EditBox original) {
         super($$0);
@@ -24,35 +29,73 @@ public class KeyboardScreen extends Screen {
     protected void init() {
         super.init();
         initEditBox();
+        shiftableButtons.clear();
 
-        char[][] chars = new char[][]{
-                new char[]{'1','2','3','4','5','6','7','8','9','0'},
-                new char[]{'q','w','e','r','t','y','u','i','o','p'},
-                new char[]{'a','s','d','f','g','h','j','k','l','-'},
-                new char[]{'z','x','c','v','b','n','m','_','@','.'}
+        int xPoint = -150;
+
+        char[][] row1Chars = new char[][]{
+                new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0','-','='},
+                new char[]{'!', '@', '#', '$', '%', '^', '&', '*', '(', ')','_','+'},
         };
-
-        int offset = -109;
-
-        for (int row = 0; row < chars.length; row++) {
-            char[] charRow = chars[row];
-            for (int column = 0; column < charRow.length;column++) {
-                char cha = charRow[column];
-                addRenderableWidget(new Button(width / 2 +offset + column * 22, height / 2 - 45 + row * 22, 20, 20, new TextComponent(String.valueOf(cha)), button -> name.charTyped(cha, 0)));
-            }
-        }
+        makeShiftableRow(xPoint,-44,row1Chars);
 
 
+        char[][] row2Chars = new char[][]{
+                new char[]{'q','w','e','r','t','y','u','i','o','p','[',']','\\','`'},
+                new char[]{'Q','W','E','R','T','Y','U','I','O','P','{','}','|','~'}
+        };
+        makeShiftableRow(xPoint,-22,row2Chars);
 
-        addRenderableWidget(new Button(width / 2 + offset , height / 2 - 45 + chars.length * 22, 80, 20, new TextComponent("Backspace"), button -> {
+
+        char[][] row3Chars = new char[][]{
+                new char[]{'a','s','d','f','g','h','j','k','l',';','\'','/'},
+                new char[]{'A','S','D','F','G','H','J','K','L',':','\"','?'}
+        };
+        makeShiftableRow(xPoint,0,row3Chars);
+
+
+        char[][] row4Chars = new char[][]{
+                new char[]{'z','x','c','v','b','n','m',',','.'},
+                new char[]{'Z','X','C','V','B','N','M','<','>',}
+
+        };
+        makeShiftableRow(xPoint + 44,22,row4Chars);
+
+
+        addRenderableWidget(new Button(width / 2 + xPoint + 264, height / 2 - 44 , 42, 20, new TextComponent("Back"), button -> {
             name.deleteChars(-1);
         }));
 
-        addRenderableWidget(new Button(width / 2 + offset + 138 , height / 2 - 45 + chars.length * 22, 80, 20, new TextComponent("Space"), button -> {
+        addRenderableWidget(new Button(width / 2 + xPoint + 242 , height / 2 +22, 64, 20, new TextComponent("Space"), button -> {
             name.charTyped(' ',0);
         }));
 
+        addRenderableWidget(new Button(width / 2 + xPoint + 264 , height / 2, 42, 20, new TextComponent("Enter"), button -> {
+            this.minecraft.popGuiLayer();
+        }));
 
+        addRenderableWidget(new Button(width / 2 + xPoint  , height / 2 +22, 42, 20, new TextComponent("Shift"), button -> {
+            for (ShiftableButton shiftableButton : shiftableButtons) {
+                shiftableButton.shift();
+            }
+        }));
+
+        }
+
+        protected void makeShiftableRow(int xStart,int yStart,char[][] chars) {
+            for (int i = 0 ; i < chars[0].length;i++) {
+                char char0 = chars[0][i];
+                char char1 = chars[1][i];
+                ShiftableButton shiftableButton = new ShiftableButton(width / 2 +xStart + i * 22, height / 2 +yStart, 20, 20, new TextComponent(String.valueOf(char0)), button -> {
+                    if (((ShiftableButton)button).shift) {
+                        name.charTyped(char1, 0);
+                    } else {
+                        name.charTyped(char0, 0);
+                    }
+                },new TextComponent(String.valueOf(char1)));
+                shiftableButtons.add(shiftableButton);
+                addRenderableWidget(shiftableButton);
+            }
         }
 
     protected void initEditBox() {
@@ -83,6 +126,7 @@ public class KeyboardScreen extends Screen {
 
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (pKeyCode == GLFW.GLFW_KEY_ESCAPE) {
+            original.setEditable(true);
             this.minecraft.popGuiLayer();
         }
 

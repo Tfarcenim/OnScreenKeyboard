@@ -28,7 +28,7 @@ public class ModClientForge {
         if (screenClass == screen.getClass()) {
             Consumer<Button> addButton = event::addListener;
             ModClient.addKeyboardButtons(screen, addButton);
-            selected= (EditBox) event.getListenersList().stream().filter(guiEventListener -> guiEventListener instanceof EditBox).findFirst().orElse(null);
+            selected = (EditBox) event.getListenersList().stream().filter(guiEventListener -> guiEventListener instanceof EditBox).findFirst().orElse(null);
         }
     }
 
