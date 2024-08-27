@@ -13,14 +13,14 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BasicKeyboardScreen<T extends Screen> extends Screen {
+public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
 
-    protected final T parent;
+    protected final S parent;
     protected EditBox name;
 
     List<ShiftableButton> shiftableButtons = new ArrayList<>();
 
-    protected BasicKeyboardScreen(Component $$0, T parent) {
+    protected BasicKeyboardScreen(Component $$0, S parent) {
         super($$0);
         this.parent = parent;
     }
@@ -44,7 +44,7 @@ public abstract class BasicKeyboardScreen<T extends Screen> extends Screen {
 
         char[][] row2Chars = new char[][]{
                 new char[]{'q','w','e','r','t','y','u','i','o','p','[',']','\\','`'},
-                new char[]{'Q','W','E','R','T','Y','U','I','O','P','{','}','|','~'}
+                new char[]{'Q','W','E','R','S','Y','U','I','O','P','{','}','|','~'}
         };
         makeShiftableRow(xPoint,yPoint+22,row2Chars);
 
@@ -107,8 +107,6 @@ public abstract class BasicKeyboardScreen<T extends Screen> extends Screen {
         this.name.setCanLoseFocus(false);
         this.name.setTextColor(-1);
         this.name.setTextColorUneditable(-1);
-
-        this.name.setMaxLength(50);
         name.setResponder(this::onChange);
         extraDetails();
         setInitialFocus(name);
