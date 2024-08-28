@@ -10,4 +10,9 @@ public class ModClient {
     public static void addKeyboardButtons(Screen screen, Consumer<Button> addButton) {
 
     }
+
+    public static void initKeyboard(Screen screen, Consumer<Button> addButton) {
+
+    }
+
 }

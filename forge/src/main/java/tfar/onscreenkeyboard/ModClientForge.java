@@ -32,7 +32,6 @@ public class ModClientForge {
         if (event.getItemStack().is(Items.NAME_TAG) && event.getPlayer().level.isClientSide) {
             NameTagRenameScreen nameTagRenameScreen = new NameTagRenameScreen(new TextComponent("Edit NameTag"),event.getItemStack());
             Minecraft.getInstance().setScreen(nameTagRenameScreen);
-            Minecraft.getInstance().pushGuiLayer(new EditBoxKeyboardScreen<>(new TextComponent(""),nameTagRenameScreen));
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         }
@@ -42,6 +41,18 @@ public class ModClientForge {
 
     static void screenInit(ScreenEvent.InitScreenEvent.Post event) {
         Screen screen = event.getScreen();
+
+        if (screen instanceof SignEditScreen signEditScreen) {
+            Button button = (Button) event.getListenersList().stream().filter(guiEventListener -> guiEventListener instanceof Button).findFirst().orElse(null);
+            if (button != null) {
+                button.x = screen.width / 2-30;
+                button.y = screen.height / 4 + 80;
+
+                button.setWidth(60);
+                button.visible = false;
+            }
+        }
+
         if (hasKeyboard(screen)  && !isKeyboardVisible()) {
             Consumer<Button> addButton = event::addListener;
             ModClient.addKeyboardButtons(screen, addButton);
@@ -60,7 +71,7 @@ public class ModClientForge {
             }
         } else if (screen instanceof SignEditScreen signEditScreen) {
             Button done = (Button) signEditScreen.children().stream().filter(guiEventListener -> guiEventListener instanceof Button).findFirst().orElse(null);
-            if (done != null && (mouseY+20) < done.y && mouseX > done.x && mouseX < done.x + done.getWidth()) {
+            if (done != null && mouseY < screen.height/2+20 && mouseX < screen.width/2 + 60) {
                 Minecraft.getInstance().pushGuiLayer(new SignEditScreenKeyboardScreen(new TextComponent(""), signEditScreen, ((SignEditScreenMixin) signEditScreen).getLine()));
             }
         }

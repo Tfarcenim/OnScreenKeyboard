@@ -25,6 +25,7 @@ public class NameTagRenameScreen extends Screen {
     protected void init() {
         super.init();
         initEditBox(-152,0);
+        KeyboardHelper.addKeyboardDirectly(this,-152,0, this::addRenderableWidget,name);
     }
 
     protected void initEditBox(int xPoint, int yPoint) {

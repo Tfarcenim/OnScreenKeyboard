@@ -2,13 +2,17 @@ package tfar.onscreenkeyboard;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.unimi.dsi.fastutil.chars.CharCharPair;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.SignEditScreen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.lwjgl.glfw.GLFW;
+import tfar.onscreenkeyboard.mixin.SignEditScreenMixin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,34 +38,11 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
         shiftableButtons.clear();
 
 
-
-        char[][] row1Chars = new char[][]{
-                new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0','-','='},
-                new char[]{'!', '@', '#', '$', '%', '^', '&', '*', '(', ')','_','+'},
-        };
-        makeShiftableRow(xPoint,yPoint,row1Chars);
-
-
-        char[][] row2Chars = new char[][]{
-                new char[]{'q','w','e','r','t','y','u','i','o','p','[',']','\\','`'},
-                new char[]{'Q','W','E','R','T','Y','U','I','O','P','{','}','|','~'}
-        };
-        makeShiftableRow(xPoint,yPoint+22,row2Chars);
-
-
-        char[][] row3Chars = new char[][]{
-                new char[]{'a','s','d','f','g','h','j','k','l',';','\'','/'},
-                new char[]{'A','S','D','F','G','H','J','K','L',':','\"','?'}
-        };
-        makeShiftableRow(xPoint,yPoint+44,row3Chars);
-
-
-        char[][] row4Chars = new char[][]{
-                new char[]{'z','x','c','v','b','n','m',',','.'},
-                new char[]{'Z','X','C','V','B','N','M','<','>',}
-
-        };
-        makeShiftableRow(xPoint + 44,yPoint+66,row4Chars);
+        KeyboardLayout keyboardLayout = KeyboardLayout.QWERTY;
+        makeShiftableRow(xPoint,yPoint,keyboardLayout.row1());
+        makeShiftableRow(xPoint,yPoint+22,keyboardLayout.row2());
+        makeShiftableRow(xPoint,yPoint+44,keyboardLayout.row3());
+        makeShiftableRow(xPoint + 44,yPoint+66,keyboardLayout.row4());
 
 
         addRenderableWidget(new Button(width / 2 + xPoint + 264, height / 2 +yPoint , 42, 20, new TextComponent("Back"), button -> {
@@ -85,12 +66,16 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
             }
         }));
 
+        addRenderableWidget(new Button(width / 2 + xPoint+110  , height / 2 + yPoint-22, 86, 20, CommonComponents.GUI_DONE, button -> {
+            ((SignEditScreenMixin)parent).done();
+        }));
         }
 
-        protected void makeShiftableRow(int xStart,int yStart,char[][] chars) {
-            for (int i = 0 ; i < chars[0].length;i++) {
-                char char0 = chars[0][i];
-                char char1 = chars[1][i];
+        protected void makeShiftableRow(int xStart,int yStart,List<CharCharPair> chars) {
+            for (int i = 0 ; i < chars.size();i++) {
+                CharCharPair charCharPair = chars.get(i);
+                char char0 = charCharPair.firstChar();
+                char char1 = charCharPair.secondChar();
                 ShiftableButton shiftableButton = new ShiftableButton(width / 2 +xStart + i * 22, height / 2 +yStart, 20, 20, new TextComponent(String.valueOf(char0)), button -> {
                     if (((ShiftableButton)button).shift) {
                         parent.charTyped(char1,0);
@@ -139,6 +124,11 @@ public abstract class BasicKeyboardScreen<S extends Screen> extends Screen {
             parent.keyPressed(pKeyCode,pScanCode,pModifiers);
             return this.name.keyPressed(pKeyCode, pScanCode, pModifiers) || this.name.canConsumeInput() || super.keyPressed(pKeyCode, pScanCode, pModifiers);
         }
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     protected void onEscape() {
