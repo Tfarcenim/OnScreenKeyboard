@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.SignEditScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -51,12 +52,13 @@ public class ModClientForge {
                 button.setWidth(60);
                 button.visible = false;
             }
-        }
-
-        if (hasKeyboard(screen)  && !isKeyboardVisible()) {
-            Consumer<Button> addButton = event::addListener;
-            ModClient.addKeyboardButtons(screen, addButton);
+            Minecraft.getInstance().pushGuiLayer(new SignEditScreenKeyboardScreen(new TextComponent(""), signEditScreen, ((SignEditScreenMixin) signEditScreen).getLine()));
+        } else if (screen instanceof AnvilScreen anvilScreen) {
             selected = (EditBox) event.getListenersList().stream().filter(guiEventListener -> guiEventListener instanceof EditBox).findFirst().orElse(null);
+            if (selected != null) {
+     //           selected.isEditable = false;
+    //            selected.setValue(anvilScreen.getMenu().slots.get(1).getItem().getHoverName().getString());
+            }
         }
     }
 
