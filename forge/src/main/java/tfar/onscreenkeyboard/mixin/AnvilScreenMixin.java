@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Shadow;
 import tfar.onscreenkeyboard.OnScreenKeyboard;
 import net.minecraft.client.Minecraft;
@@ -26,14 +27,22 @@ abstract class AnvilScreenMixin extends AbstractContainerScreen<AnvilMenu> {
         super(pMenu, pPlayerInventory, pTitle);
     }
 
+    @Inject(method = "subInit",at = @At("RETURN"))
+    private void initName(CallbackInfo ci) {
+        this.name.setFocus(false);
+    }
+
 
     @Inject(method = "slotChanged",at = @At("RETURN"))
     private void modifyName(AbstractContainerMenu pContainerToSend, int pSlotInd, ItemStack pStack, CallbackInfo ci) {
         ItemStack stack1 = getMenu().slots.get(1).getItem();
-        if (!stack1.isEmpty()) {
+        this.name.setEditable(false);
+        if (stack1.is(Items.NAME_TAG)) {
             this.name.setValue(stack1.getHoverName().getString());
-            this.name.setEditable(false);
-            this.setFocused(this.name);
+            //this.setFocused(this.name);
+        } else {
+            ItemStack stack0 = getMenu().slots.get(0).getItem();
+            this.name.setValue(stack0.isEmpty() ? "" : stack0.getHoverName().getString());
         }
     }
 }

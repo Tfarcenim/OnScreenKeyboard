@@ -6,19 +6,18 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.SignEditScreen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.ScreenOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import tfar.onscreenkeyboard.client.CustomSignEditScreen;
 import tfar.onscreenkeyboard.client.SignEditScreenKeyboardScreen;
 import tfar.onscreenkeyboard.mixin.SignEditScreenMixin;
 import tfar.onscreenkeyboard.platform.Services;
-
-import java.util.function.Consumer;
 
 public class ModClientForge {
 
@@ -27,6 +26,7 @@ public class ModClientForge {
         MinecraftForge.EVENT_BUS.addListener(ModClientForge::screenInit);
         MinecraftForge.EVENT_BUS.addListener(ModClientForge::widgetClick);
         MinecraftForge.EVENT_BUS.addListener(ModClientForge::useNameTag);
+        MinecraftForge.EVENT_BUS.addListener(ModClientForge::openScreen);
     }
 
     static void useNameTag(PlayerInteractEvent.RightClickItem event) {
@@ -38,7 +38,14 @@ public class ModClientForge {
         }
     }
 
+    static void openScreen(ScreenOpenEvent event) {
+        if (event.getScreen() instanceof SignEditScreen signEditScreen) {
+            event.setScreen(new CustomSignEditScreen(signEditScreen.sign,Minecraft.getInstance().isTextFilteringEnabled()));
+        }
+    }
+
     static EditBox selected;
+
 
     static void screenInit(ScreenEvent.InitScreenEvent.Post event) {
         Screen screen = event.getScreen();
