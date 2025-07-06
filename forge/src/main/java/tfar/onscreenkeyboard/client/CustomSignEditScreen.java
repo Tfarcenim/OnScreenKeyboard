@@ -11,6 +11,8 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
+
+import java.util.Objects;
 import java.util.stream.IntStream;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
@@ -27,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -60,7 +63,8 @@ public class CustomSignEditScreen extends Screen {
 
    protected void init() {
       this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-      this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 2, 200, 20, CommonComponents.GUI_DONE, (p_169820_) -> {
+      int w = 150;
+      this.addRenderableWidget(new Button(this.width / 2 - w/2, this.height / 2, w, 20, CommonComponents.GUI_DONE, (p_169820_) -> {
          this.onDone();
       }));
       this.sign.setEditable(false);
@@ -128,92 +132,104 @@ public class CustomSignEditScreen extends Screen {
 
    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
       Lighting.setupForFlatItems();
-      renderDirtBackground(0);
       //this.renderBackground(pPoseStack);
+      renderDirtBackground(0);
       drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 40, 16777215);
       pPoseStack.pushPose();
-      pPoseStack.translate(this.width / 2, 0.0D, 50.0D);
-      float f = 93.75F;
-      pPoseStack.scale(f, -f, f);
-      pPoseStack.translate(0.0D, -1.3125D, 0.0D);
-      BlockState blockstate = this.sign.getBlockState();
-      boolean flag = false;//blockstate.getBlock() instanceof StandingSignBlock;
-
-      pPoseStack.translate(0.0D, -0.3125D, 0.0D);
-
-      if (!flag) {
-         pPoseStack.translate(0.0D, -0.3125D, 0.0D);
+      pPoseStack.translate((double)(this.width / 2), 0.0, 50.0);
+      float $$4 = 93.75F;
+      pPoseStack.scale(93.75F, -93.75F, 93.75F);
+      pPoseStack.translate(0.0, -1.3125, 0.0);
+      BlockState $$5 = this.sign.getBlockState();
+      boolean $$6 = false;//$$5.getBlock() instanceof StandingSignBlock;
+      if (!$$6) {
+         pPoseStack.translate(0.0, -0.3125, 0.0);
       }
 
-      boolean flag1 = this.frame / 6 % 2 == 0;
-      float f1 = 0.6666667F;
+      pPoseStack.translate(0.0, 0.3125, 0.0);
+
+      boolean $$7 = this.frame / 6 % 2 == 0;
+      float $$8 = 0.6666667F;
       pPoseStack.pushPose();
       pPoseStack.scale(0.6666667F, -0.6666667F, -0.6666667F);
-      MultiBufferSource.BufferSource multibuffersource$buffersource = this.minecraft.renderBuffers().bufferSource();
-      Material material = Sheets.getSignMaterial(this.woodType);
-      VertexConsumer vertexconsumer = material.buffer(multibuffersource$buffersource, this.signModel::renderType);
-      this.signModel.stick.visible = flag;
-      this.signModel.root.render(pPoseStack, vertexconsumer, 15728880, OverlayTexture.NO_OVERLAY);
+      MultiBufferSource.BufferSource $$9 = this.minecraft.renderBuffers().bufferSource();
+      Material $$10 = Sheets.getSignMaterial(this.woodType);
+      SignRenderer.SignModel var10002 = this.signModel;
+      Objects.requireNonNull(var10002);
+      VertexConsumer $$11 = $$10.buffer($$9, var10002::renderType);
+      this.signModel.stick.visible = $$6;
+      this.signModel.root.render(pPoseStack, $$11, 15728880, OverlayTexture.NO_OVERLAY);
       pPoseStack.popPose();
-      float f2 = 0.010416667F;
-      pPoseStack.translate(0.0D, 1/3f, 0.046666667F);
-      pPoseStack.scale(f, -f, f);
-      int i = this.sign.getColor().getTextColor();
-      int j = this.signField.getCursorPos();
-      int k = this.signField.getSelectionPos();
-      int l = this.line * 10 - this.messages.length * 5;
-      Matrix4f matrix4f = pPoseStack.last().pose();
+      float $$12 = 0.010416667F;
+      pPoseStack.translate(0.0, 0.3333333432674408, 0.046666666865348816);
+      pPoseStack.scale(0.010416667F, -0.010416667F, 0.010416667F);
+      int $$13 = this.sign.getColor().getTextColor();
+      int $$14 = this.signField.getCursorPos();
+      int $$15 = this.signField.getSelectionPos();
+      int $$16 = this.line * 10 - this.messages.length * 5;
+      Matrix4f $$17 = pPoseStack.last().pose();
 
-      for(int i1 = 0; i1 < this.messages.length; ++i1) {
-         String s = this.messages[i1];
-         if (s != null) {
+      int $$18;
+      String $$24;
+      int $$26;
+      int $$27;
+      for($$18 = 0; $$18 < this.messages.length; ++$$18) {
+         $$24 = this.messages[$$18];
+         if ($$24 != null) {
             if (this.font.isBidirectional()) {
-               s = this.font.bidirectionalShaping(s);
+               $$24 = this.font.bidirectionalShaping($$24);
             }
 
-            float f3 = (float)(-this.minecraft.font.width(s) / 2);
-            this.minecraft.font.drawInBatch(s, f3, (float)(i1 * 10 - this.messages.length * 5), i, false, matrix4f, multibuffersource$buffersource, false, 0, 15728880, false);
-            if (i1 == this.line && j >= 0 && flag1) {
-               int j1 = this.minecraft.font.width(s.substring(0, Math.max(Math.min(j, s.length()), 0)));
-               int k1 = j1 - this.minecraft.font.width(s) / 2;
-               if (j >= s.length()) {
-                  this.minecraft.font.drawInBatch("_", (float)k1, (float)l, i, false, matrix4f, multibuffersource$buffersource, false, 0, 15728880, false);
+            float $$20 = (float)(-this.minecraft.font.width($$24) / 2);
+            this.minecraft.font.drawInBatch($$24, $$20, (float)($$18 * 10 - this.messages.length * 5), $$13, false, $$17, $$9, false, 0, 15728880, false);
+            if ($$18 == this.line && $$14 >= 0 && $$7) {
+               $$26 = this.minecraft.font.width($$24.substring(0, Math.max(Math.min($$14, $$24.length()), 0)));
+               $$27 = $$26 - this.minecraft.font.width($$24) / 2;
+               if ($$14 >= $$24.length()) {
+                  this.minecraft.font.drawInBatch("_", (float)$$27, (float)$$16, $$13, false, $$17, $$9, false, 0, 15728880, false);
                }
             }
          }
       }
 
-      multibuffersource$buffersource.endBatch();
+      $$9.endBatch();
 
-      for(int i3 = 0; i3 < this.messages.length; ++i3) {
-         String s1 = this.messages[i3];
-         if (s1 != null && i3 == this.line && j >= 0) {
-            int j3 = this.minecraft.font.width(s1.substring(0, Math.max(Math.min(j, s1.length()), 0)));
-            int k3 = j3 - this.minecraft.font.width(s1) / 2;
-            if (flag1 && j < s1.length()) {
-               fill(pPoseStack, k3, l - 1, k3 + 1, l + 9, -16777216 | i);
+      for($$18 = 0; $$18 < this.messages.length; ++$$18) {
+         $$24 = this.messages[$$18];
+         if ($$24 != null && $$18 == this.line && $$14 >= 0) {
+            int $$25 = this.minecraft.font.width($$24.substring(0, Math.max(Math.min($$14, $$24.length()), 0)));
+            $$26 = $$25 - this.minecraft.font.width($$24) / 2;
+            if ($$7 && $$14 < $$24.length()) {
+               int var31 = $$16 - 1;
+               int var10003 = $$26 + 1;
+               Objects.requireNonNull(this.minecraft.font);
+               fill(pPoseStack, $$26, var31, var10003, $$16 + 9, -16777216 | $$13);
             }
 
-            if (k != j) {
-               int l3 = Math.min(j, k);
-               int l1 = Math.max(j, k);
-               int i2 = this.minecraft.font.width(s1.substring(0, l3)) - this.minecraft.font.width(s1) / 2;
-               int j2 = this.minecraft.font.width(s1.substring(0, l1)) - this.minecraft.font.width(s1) / 2;
-               int k2 = Math.min(i2, j2);
-               int l2 = Math.max(i2, j2);
-               Tesselator tesselator = Tesselator.getInstance();
-               BufferBuilder bufferbuilder = tesselator.getBuilder();
+            if ($$15 != $$14) {
+               $$27 = Math.min($$14, $$15);
+               int $$28 = Math.max($$14, $$15);
+               int $$29 = this.minecraft.font.width($$24.substring(0, $$27)) - this.minecraft.font.width($$24) / 2;
+               int $$30 = this.minecraft.font.width($$24.substring(0, $$28)) - this.minecraft.font.width($$24) / 2;
+               int $$31 = Math.min($$29, $$30);
+               int $$32 = Math.max($$29, $$30);
+               Tesselator $$33 = Tesselator.getInstance();
+               BufferBuilder $$34 = $$33.getBuilder();
                RenderSystem.setShader(GameRenderer::getPositionColorShader);
                RenderSystem.disableTexture();
                RenderSystem.enableColorLogicOp();
                RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-               bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-               bufferbuilder.vertex(matrix4f, (float)k2, (float)(l + 9), 0.0F).color(0, 0, 255, 255).endVertex();
-               bufferbuilder.vertex(matrix4f, (float)l2, (float)(l + 9), 0.0F).color(0, 0, 255, 255).endVertex();
-               bufferbuilder.vertex(matrix4f, (float)l2, (float)l, 0.0F).color(0, 0, 255, 255).endVertex();
-               bufferbuilder.vertex(matrix4f, (float)k2, (float)l, 0.0F).color(0, 0, 255, 255).endVertex();
-               bufferbuilder.end();
-               BufferUploader.end(bufferbuilder);
+               $$34.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+               float var32 = (float)$$31;
+               Objects.requireNonNull(this.minecraft.font);
+               $$34.vertex($$17, var32, (float)($$16 + 9), 0.0F).color(0, 0, 255, 255).endVertex();
+               var32 = (float)$$32;
+               Objects.requireNonNull(this.minecraft.font);
+               $$34.vertex($$17, var32, (float)($$16 + 9), 0.0F).color(0, 0, 255, 255).endVertex();
+               $$34.vertex($$17, (float)$$32, (float)$$16, 0.0F).color(0, 0, 255, 255).endVertex();
+               $$34.vertex($$17, (float)$$31, (float)$$16, 0.0F).color(0, 0, 255, 255).endVertex();
+               $$34.end();
+               BufferUploader.end($$34);
                RenderSystem.disableColorLogicOp();
                RenderSystem.enableTexture();
             }
